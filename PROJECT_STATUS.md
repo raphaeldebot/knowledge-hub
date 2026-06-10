@@ -1,6 +1,6 @@
 # Project Status - Knowledge Hub
 
-Dernière mise à jour : 2026-06-09
+Dernière mise à jour : 2026-06-10
 
 ## Résumé du projet
 
@@ -60,6 +60,7 @@ logs/
 
 scripts/
   index-knowledge.js
+  test-ollama.js
 
 AGENTS.md
 README.md
@@ -116,6 +117,25 @@ Commande :
 node scripts/index-knowledge.js
 ```
 
+### `scripts/test-ollama.js`
+
+Script local Node.js qui :
+
+- teste la connexion entre Knowledge Hub et l'API locale Ollama
+- vérifie qu'Ollama répond sur `http://localhost:11434`
+- détecte les modèles installés
+- utilise une IA locale sans API payante
+- garde les logs d'exécution localement
+
+Dernier test connu :
+
+- résultat : succès
+- modèle utilisé : `llama3.2:3b`
+- modèles détectés : `llama3.2:3b` et `qwen2.5:7b`
+- réponse reçue : `OK`
+
+Les logs restent locaux et peuvent être ignorés par Git.
+
 ## État de l'index
 
 Le fichier suivant existe :
@@ -157,6 +177,9 @@ Dernier état connu :
 - workflow d'utilisation
 - workflow de recherche externe
 - spécification pour un futur agent de recherche web
+- script de test de l'API locale Ollama
+- communication avec Ollama testée avec succès
+- utilisation locale du modèle `llama3.2:3b` sans API payante
 
 ## Fonctionnalités non encore créées
 
@@ -165,7 +188,6 @@ Dernier état connu :
 - planner
 - import automatique de sources
 - agent IA local
-- intégration Ollama
 - génération automatique de fiches depuis des sources
 - gestion avancée des doublons
 - visualisation de progression
@@ -215,6 +237,15 @@ Ajouter dans l'index :
 ### Option 4 - Planner
 
 Créer une première convention pour les tâches et idées de projet.
+
+### Option 5 - Génération locale d'une fiche brouillon
+
+Créer un script qui :
+
+- lit une note locale dans `data/raw/research/`
+- utilise Ollama localement
+- génère une fiche Markdown brouillon dans `knowledge/`
+- conserve la source et les logs localement
 
 ## Décision recommandée
 
