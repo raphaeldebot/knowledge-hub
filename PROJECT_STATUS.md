@@ -1,6 +1,6 @@
 # Project Status - Knowledge Hub
 
-Dernière mise à jour : 2026-06-10
+Dernière mise à jour : 2026-06-11
 
 ## Résumé du projet
 
@@ -36,6 +36,11 @@ Les règles principales sont définies dans `AGENTS.md`.
 ```txt
 data/
   raw/
+    research/
+      comfyui/
+        research-plan.md
+        sources.md
+        notes.md
   processed/
     knowledge-index.json
 
@@ -43,13 +48,16 @@ knowledge/
   _template.md
   _taxonomy.md
   automation/
+    ollama-local-agent-setup.md
+    ollama-windows-install-checklist.md
     research-workflow.md
     web-research-agent-spec.md
+  ai-image/
+    comfyui-draft.md
   personal/
     knowledge-hub-vision.md
     workflow-utilisation.md
   webdev/
-  ai-image/
   linux/
   git/
 
@@ -59,6 +67,7 @@ logs/
   errors/
 
 scripts/
+  generate-note-with-ollama.js
   index-knowledge.js
   test-ollama.js
 
@@ -136,6 +145,28 @@ Dernier test connu :
 
 Les logs restent locaux et peuvent être ignorés par Git.
 
+### `scripts/generate-note-with-ollama.js`
+
+Script local Node.js qui :
+
+- lit une note Markdown locale
+- utilise Ollama localement
+- génère une fiche Markdown brouillon dans `knowledge/`
+- construit lui-même le frontmatter
+- vérifie les placeholders et les faux liens
+- empêche l'ajout d'URL absentes de la note source
+- n'écrase pas une fiche existante sans l'option `--force`
+- garde les logs d'exécution localement
+- n'utilise aucune API payante
+
+Dernier test connu :
+
+- input : `data/raw/research/comfyui/notes.md`
+- output : `knowledge/ai-image/comfyui-draft.md`
+- modèle : `qwen2.5:7b`
+- résultat : succès
+- provider : Ollama local
+
 ## État de l'index
 
 Le fichier suivant existe :
@@ -165,6 +196,12 @@ Dernier état connu :
 
 - `knowledge/automation/research-workflow.md`
 - `knowledge/automation/web-research-agent-spec.md`
+- `knowledge/automation/ollama-local-agent-setup.md`
+- `knowledge/automation/ollama-windows-install-checklist.md`
+
+### Image IA
+
+- `knowledge/ai-image/comfyui-draft.md`
 
 ## Fonctionnalités déjà en place
 
@@ -180,6 +217,10 @@ Dernier état connu :
 - script de test de l'API locale Ollama
 - communication avec Ollama testée avec succès
 - utilisation locale du modèle `llama3.2:3b` sans API payante
+- génération locale de fiche brouillon avec Ollama
+- transformation d'une note locale en fiche Markdown
+- validation anti-hallucination de base
+- génération automatique du frontmatter par le script
 
 ## Fonctionnalités non encore créées
 
@@ -188,7 +229,7 @@ Dernier état connu :
 - planner
 - import automatique de sources
 - agent IA local
-- génération automatique de fiches depuis des sources
+- génération avancée de fiches depuis plusieurs sources avec validation et fusion intelligente
 - gestion avancée des doublons
 - visualisation de progression
 
@@ -247,18 +288,11 @@ Créer un script qui :
 - génère une fiche Markdown brouillon dans `knowledge/`
 - conserve la source et les logs localement
 
-## Décision recommandée
+## Prochaine étape recommandée
 
-La prochaine étape recommandée est :
-
-Créer un premier dossier de recherche pour ComfyUI.
-
-Raison :
-
-- c'est directement utile pour les projets image IA
-- ça teste le workflow de recherche externe
-- ça prépare plus tard l'automatisation
-- ça reste local et gratuit
+- corriger et valider manuellement `knowledge/ai-image/comfyui-draft.md`
+- relancer `node scripts/index-knowledge.js`
+- créer ensuite un script de recherche locale simple ou améliorer le workflow de génération
 
 ## Commandes utiles
 
