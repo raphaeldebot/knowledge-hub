@@ -1,6 +1,6 @@
 # Project Status - Knowledge Hub
 
-Dernière mise à jour : 2026-06-11
+Dernière mise à jour : 2026-06-12
 
 ## Résumé du projet
 
@@ -15,7 +15,7 @@ Le projet doit rester :
 - simple
 - progressif
 - source-grounded
-- compatible avec une future IA locale
+- compatible avec une IA locale
 
 ## Règles importantes
 
@@ -25,10 +25,11 @@ Les règles principales sont définies dans `AGENTS.md`.
 
 - ne jamais utiliser de service payant sans demande explicite
 - ne jamais envoyer de données privées vers un service externe sans demande explicite
-- ne jamais modifier ou supprimer directement les sources dans `data/raw/`
+- ne jamais supprimer ou modifier sans contrôle les sources dans `data/raw/`
 - créer des logs pour les actions importantes
 - ne pas inventer d'informations absentes des sources
 - marquer les informations incertaines avec `À vérifier`
+- faire valider humainement les résultats produits par une IA
 - avancer étape par étape
 
 ## Structure actuelle
@@ -37,10 +38,13 @@ Les règles principales sont définies dans `AGENTS.md`.
 data/
   raw/
     research/
-      comfyui/
+      <slug>/
         research-plan.md
         sources.md
+        source-validation.md
         notes.md
+        fetched/
+          source-recuperee.md
   processed/
     knowledge-index.json
 
@@ -52,11 +56,9 @@ knowledge/
     ollama-windows-install-checklist.md
     research-workflow.md
     web-research-agent-spec.md
+    web-source-agent-v1.md
   ai-image/
-    comfyui-draft.md
   personal/
-    knowledge-hub-vision.md
-    workflow-utilisation.md
   webdev/
   linux/
   git/
@@ -67,9 +69,15 @@ logs/
   errors/
 
 scripts/
+  analyze-fetched-source-with-ollama.js
+  create-research-topic.js
+  fetch-source.js
   generate-note-with-ollama.js
   index-knowledge.js
+  search-knowledge.js
+  search-web-sources.js
   test-ollama.js
+  validate-sources.js
 
 AGENTS.md
 README.md
@@ -109,41 +117,60 @@ Définit les conventions :
 - `status`
 - règles anti-doublons
 
-### `scripts/index-knowledge.js`
+### `scripts/create-research-topic.js`
 
 Script local Node.js qui :
 
-- lit les fiches Markdown dans `knowledge/`
-- ignore `knowledge/_template.md`
-- extrait le frontmatter
-- extrait les titres Markdown
-- crée ou met à jour `data/processed/knowledge-index.json`
-- crée un log dans `logs/runs/`
+- crée ou réutilise un dossier `data/raw/research/<slug>/`
+- prépare `research-plan.md`, `sources.md` et `notes.md`
+- ne remplace pas les fichiers existants
+- garde un log local
 
-Commande :
+### `scripts/search-web-sources.js`
 
-```bash
-node scripts/index-knowledge.js
-```
+Script contrôlé qui :
 
-### `scripts/test-ollama.js`
+- envoie une requête à DuckDuckGo HTML
+- récupère uniquement des URLs candidates
+- limite le nombre de résultats
+- ne visite pas automatiquement les pages candidates
+- ajoute les nouvelles URLs dans `sources.md`
+- évite les doublons
+- propose un mode `--dry-run`
 
-Script local Node.js qui :
+### `scripts/validate-sources.js`
 
-- teste la connexion entre Knowledge Hub et l'API locale Ollama
-- vérifie qu'Ollama répond sur `http://localhost:11434`
-- détecte les modèles installés
-- utilise une IA locale sans API payante
-- garde les logs d'exécution localement
+Script entièrement local qui :
 
-Dernier test connu :
+- lit les sources candidates dans `sources.md`
+- applique une pré-validation heuristique
+- estime le type et la fiabilité des sources
+- produit `source-validation.md`
+- ne visite aucune URL
 
-- résultat : succès
-- modèle utilisé : `llama3.2:3b`
-- modèles détectés : `llama3.2:3b` et `qwen2.5:7b`
-- réponse reçue : `OK`
+### `scripts/fetch-source.js`
 
-Les logs restent locaux et peuvent être ignorés par Git.
+Script contrôlé qui :
+
+- récupère une seule URL explicitement fournie
+- accepte uniquement du contenu HTML
+- suit au maximum trois redirections
+- limite la taille téléchargée
+- extrait un texte brut local
+- enregistre le résultat dans `data/raw/research/<slug>/fetched/`
+- ne suit aucun lien trouvé dans la page
+
+### `scripts/analyze-fetched-source-with-ollama.js`
+
+Script local qui :
+
+- lit une source Markdown dans `fetched/`
+- utilise Ollama sur `http://localhost:11434`
+- utilise `qwen2.5:7b` par défaut
+- produit une analyse structurée et source-grounded
+- ajoute l'analyse dans `notes.md`
+- refuse les faux liens et certains placeholders
+- ne modifie pas la source récupérée
 
 ### `scripts/generate-note-with-ollama.js`
 
@@ -156,16 +183,88 @@ Script local Node.js qui :
 - vérifie les placeholders et les faux liens
 - empêche l'ajout d'URL absentes de la note source
 - n'écrase pas une fiche existante sans l'option `--force`
-- garde les logs d'exécution localement
 - n'utilise aucune API payante
+
+### `scripts/index-knowledge.js`
+
+Script local Node.js qui :
+
+- lit les fiches Markdown dans `knowledge/`
+- ignore `knowledge/_template.md`
+- extrait le frontmatter et les titres Markdown
+- crée ou met à jour `data/processed/knowledge-index.json`
+- crée un log dans `logs/runs/`
+
+Commande :
+
+```bash
+node scripts/index-knowledge.js
+```
+
+### `scripts/search-knowledge.js`
+
+Script local qui :
+
+- lit `data/processed/knowledge-index.json`
+- recherche dans les titres, topics, tags, headings et chemins
+- accepte les filtres `--topic` et `--tag`
+- peut afficher toutes les fiches avec `--all`
+- effectue une recherche insensible à la casse, aux accents, tirets et underscores
+
+### `scripts/test-ollama.js`
+
+Script local Node.js qui :
+
+- teste la connexion entre Knowledge Hub et l'API locale Ollama
+- vérifie qu'Ollama répond sur `http://localhost:11434`
+- détecte les modèles installés
+- utilise une IA locale sans API payante
 
 Dernier test connu :
 
-- input : `data/raw/research/comfyui/notes.md`
-- output : `knowledge/ai-image/comfyui-draft.md`
-- modèle : `qwen2.5:7b`
 - résultat : succès
-- provider : Ollama local
+- modèle utilisé : `llama3.2:3b`
+- modèles détectés : `llama3.2:3b` et `qwen2.5:7b`
+- réponse reçue : `OK`
+
+## Workflow validé : source web vers fiche locale
+
+Le workflow complet de recherche contrôlée a été testé avec succès avec le sujet ComfyUI beginner guide.
+
+```txt
+mot-clé
+→ sources candidates
+→ validation locale
+→ fetch d'une URL explicite
+→ analyse Ollama locale
+→ notes.md enrichi
+→ fiche Markdown brouillon
+→ index local
+```
+
+Étapes validées :
+
+1. Création d'un dossier de recherche local.
+2. Recherche de sources candidates avec DuckDuckGo HTML.
+3. Enregistrement des URLs candidates dans `sources.md`.
+4. Pré-validation heuristique locale avec `validate-sources.js`.
+5. Récupération contrôlée d'une URL explicite avec `fetch-source.js`.
+6. Extraction d'un texte brut dans `data/raw/research/<slug>/fetched/`.
+7. Analyse locale avec Ollama et le modèle `qwen2.5:7b`.
+8. Ajout de l'analyse structurée dans `notes.md`.
+9. Génération d'une fiche Markdown brouillon dans `knowledge/`.
+10. Validation humaine avant de considérer la fiche comme fiable.
+
+### Limites du workflow
+
+- La recherche web envoie la requête à DuckDuckGo HTML.
+- Aucune API payante n'est utilisée.
+- Aucun crawler généraliste n'est créé.
+- Les pages candidates ne sont pas visitées automatiquement par la recherche.
+- `fetch-source.js` récupère seulement une URL explicitement fournie.
+- Les résultats de recherche et les scores heuristiques ne prouvent pas la fiabilité d'une source.
+- L'analyse LLM reste un brouillon.
+- Une validation humaine est obligatoire avant de considérer une fiche comme fiable.
 
 ## État de l'index
 
@@ -175,33 +274,7 @@ Le fichier suivant existe :
 data/processed/knowledge-index.json
 ```
 
-Dernier état connu :
-
-- fiches indexées : 5
-- fichier ignoré : `knowledge/_template.md`
-- erreurs : aucune
-
-## Fiches déjà créées
-
-### Système / organisation
-
-- `knowledge/_taxonomy.md`
-
-### Vision et utilisation
-
-- `knowledge/personal/knowledge-hub-vision.md`
-- `knowledge/personal/workflow-utilisation.md`
-
-### Automatisation et recherche
-
-- `knowledge/automation/research-workflow.md`
-- `knowledge/automation/web-research-agent-spec.md`
-- `knowledge/automation/ollama-local-agent-setup.md`
-- `knowledge/automation/ollama-windows-install-checklist.md`
-
-### Image IA
-
-- `knowledge/ai-image/comfyui-draft.md`
+L'index doit être relancé après la validation ou la modification d'une fiche dans `knowledge/`.
 
 ## Fonctionnalités déjà en place
 
@@ -211,88 +284,65 @@ Dernier état connu :
 - logs de run
 - script d'indexation local
 - index JSON généré
-- workflow d'utilisation
-- workflow de recherche externe
-- spécification pour un futur agent de recherche web
-- script de test de l'API locale Ollama
-- communication avec Ollama testée avec succès
-- utilisation locale du modèle `llama3.2:3b` sans API payante
-- génération locale de fiche brouillon avec Ollama
-- transformation d'une note locale en fiche Markdown
+- recherche locale dans l'index
+- création de dossiers de recherche
+- recherche contrôlée de sources web candidates
+- validation heuristique locale des sources
+- récupération contrôlée d'une source HTML
+- extraction locale du texte d'une page HTML
+- analyse locale d'une source récupérée avec Ollama
+- génération de fiches Markdown brouillon depuis des notes locales
 - validation anti-hallucination de base
 - génération automatique du frontmatter par le script
+- communication avec Ollama testée avec succès
+- workflow complet testé avec ComfyUI beginner guide
 
 ## Fonctionnalités non encore créées
 
-- moteur de recherche local
+- fusion intelligente de plusieurs sources
+- validation avancée multi-sources
 - interface web
 - planner
-- import automatique de sources
-- agent IA local
-- génération avancée de fiches depuis plusieurs sources avec validation et fusion intelligente
+- amélioration de la qualité des fiches détaillées
 - gestion avancée des doublons
-- visualisation de progression
+- sélection automatique prudente des meilleures sources
 
 ## Prochaines étapes possibles
 
-### Option 1 - Recherche locale simple
+### Option 1 - Fiche spécialisée
 
-Créer un script :
-
-```txt
-scripts/search-knowledge.js
-```
-
-Objectif :
-
-- lire `data/processed/knowledge-index.json`
-- chercher dans `title`, `tags`, `topic`, `headings`
-- afficher les fiches correspondantes dans le terminal
-
-### Option 2 - Premier dossier de recherche
-
-Créer un dossier :
+Créer une fiche détaillée spécialisée, par exemple :
 
 ```txt
-data/raw/research/comfyui/
-  research-plan.md
-  sources.md
-  notes.md
+knowledge/ai-image/comfyui-text-to-image-workflow.md
 ```
 
-Objectif :
+### Option 2 - Titres plus propres
 
-- préparer une recherche sur ComfyUI
-- garder les sources
-- transformer plus tard les notes en fiches Markdown
+Améliorer `scripts/generate-note-with-ollama.js` pour générer automatiquement des titres plus propres.
 
-### Option 3 - Amélioration de l'index
+### Option 3 - Plusieurs fiches spécialisées
 
-Ajouter dans l'index :
+Créer un script qui transforme plusieurs analyses présentes dans `notes.md` en plusieurs fiches spécialisées.
 
-- extrait court de chaque fiche
-- date de modification du fichier
-- nombre de headings
-- nombre de tags
+### Option 4 - Workflow guidé
 
-### Option 4 - Planner
+Créer une commande qui lance le workflow étape par étape avec une confirmation humaine entre chaque étape.
 
-Créer une première convention pour les tâches et idées de projet.
+### Option 5 - Recherche locale améliorée
 
-### Option 5 - Génération locale d'une fiche brouillon
-
-Créer un script qui :
-
-- lit une note locale dans `data/raw/research/`
-- utilise Ollama localement
-- génère une fiche Markdown brouillon dans `knowledge/`
-- conserve la source et les logs localement
+Améliorer `scripts/search-knowledge.js` avec un affichage plus compact ou l'ouverture du fichier trouvé.
 
 ## Prochaine étape recommandée
 
-- corriger et valider manuellement `knowledge/ai-image/comfyui-draft.md`
-- relancer `node scripts/index-knowledge.js`
-- créer ensuite un script de recherche locale simple ou améliorer le workflow de génération
+Créer une fiche spécialisée plus détaillée à partir d'une source précise, plutôt que de tout mettre dans une seule fiche générale.
+
+Raison :
+
+- une fiche spécialisée est plus facile à vérifier
+- elle garde un lien clair avec une source précise
+- elle limite les généralisations et les mélanges entre plusieurs sujets
+- elle améliore la qualité de la recherche locale
 
 ## Commandes utiles
 
@@ -302,11 +352,18 @@ Relancer l'index :
 node scripts/index-knowledge.js
 ```
 
+Rechercher dans l'index :
+
+```bash
+node scripts/search-knowledge.js comfyui
+```
+
 ## À ne pas faire maintenant
 
 - ne pas créer de site Next.js tout de suite
 - ne pas installer de base de données
 - ne pas utiliser d'API payante
 - ne pas scraper automatiquement Google
+- ne pas créer de crawler généraliste
 - ne pas envoyer de sources privées à un service externe
-- ne pas automatiser trop tôt avant d'avoir testé le workflow manuellement
+- ne pas considérer une analyse LLM comme fiable sans validation humaine
