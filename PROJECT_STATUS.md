@@ -1,6 +1,6 @@
 # Project Status - Knowledge Hub
 
-Dernière mise à jour : 2026-06-12
+Dernière mise à jour : 2026-06-14
 
 ## Résumé du projet
 
@@ -70,16 +70,40 @@ logs/
 
 scripts/
   analyze-fetched-source-with-ollama.js
+  check-source-adequacy.js
   create-research-topic.js
+  extract-facts-with-ollama.js
   fetch-source.js
-  generate-note-direct-with-ollama.js
+  generate-note-from-facts.js
   generate-note-with-ollama.js
   index-knowledge.js
   run-research-mvp.js
+  run-research-pipeline.js
   search-knowledge.js
   search-web-sources.js
+  select-and-fetch-best-source.js
   test-ollama.js
   validate-sources.js
+  mvp/
+    generate-note-direct-with-ollama.js
+    research-mvp.js
+  legacy/
+    README.md
+    extract-facts-with-ollama.js
+    facts-contract.js
+    generate-note-from-facts.js
+    markdown-from-facts.js
+    run-research-pipeline.js
+  shared/
+    atomic-file.js
+
+tests/
+  fixtures/
+    pipeline/
+  legacy/
+    pipeline-contracts.test.js
+  mvp/
+    research-mvp.test.js
 
 AGENTS.md
 README.md
@@ -162,30 +186,18 @@ Script contrôlé qui :
 - enregistre le résultat dans `data/raw/research/<slug>/fetched/`
 - ne suit aucun lien trouvé dans la page
 
-### `scripts/analyze-fetched-source-with-ollama.js`
+### Wrappers historiques
 
-Script local qui :
+Les fichiers suivants restent à la racine de `scripts/` uniquement pour ne pas
+casser les anciennes commandes :
 
-- lit une source Markdown dans `fetched/`
-- utilise Ollama sur `http://localhost:11434`
-- utilise `qwen2.5:7b` par défaut
-- produit une analyse structurée et source-grounded
-- ajoute l'analyse dans `notes.md`
-- refuse les faux liens et certains placeholders
-- ne modifie pas la source récupérée
+- `scripts/analyze-fetched-source-with-ollama.js`
+- `scripts/extract-facts-with-ollama.js`
+- `scripts/generate-note-from-facts.js`
+- `scripts/generate-note-with-ollama.js`
+- `scripts/run-research-pipeline.js`
 
-### `scripts/generate-note-with-ollama.js`
-
-Script local Node.js qui :
-
-- lit une note Markdown locale
-- utilise Ollama localement
-- génère une fiche Markdown brouillon dans `knowledge/`
-- construit lui-même le frontmatter
-- vérifie les placeholders et les faux liens
-- empêche l'ajout d'URL absentes de la note source
-- n'écrase pas une fiche existante sans l'option `--force`
-- n'utilise aucune API payante
+Leur logique réelle se trouve désormais dans `scripts/legacy/`.
 
 ### `scripts/index-knowledge.js`
 
@@ -217,9 +229,32 @@ Commande :
 node scripts/run-research-mvp.js "recette gâteau au chocolat moelleux"
 ```
 
-Le modèle par défaut est `qwen2.5:7b` et peut être changé avec
-`OLLAMA_MODEL`. Le topic est automatique, avec une option manuelle `--topic`.
-La fiche produite reste en statut `draft`.
+Le modèle reste configurable avec `OLLAMA_MODEL`. Le modèle testé avec succès
+pour ce chemin est `qwen3:14b`. Le topic est automatique, avec une option
+manuelle `--topic`. La fiche produite reste en statut `draft` et peut nécessiter
+des corrections humaines.
+
+Commande validée :
+
+```powershell
+$env:OLLAMA_MODEL = "qwen3:14b"
+node scripts/run-research-mvp.js "recette gâteau au chocolat moelleux" --force
+```
+
+### `scripts/mvp/`
+
+Contient uniquement la génération Markdown directe, le nettoyage simple, la
+validation minimale, la classification et les fonctions propres au MVP.
+
+### `scripts/legacy/`
+
+Conserve l'ancien pipeline complexe d'extraction JSON, de faits avec provenance
+et de rendu par profil. Il reste testable et documenté, mais n'est pas le chemin
+recommandé actuellement.
+
+### `scripts/shared/`
+
+Contient uniquement l'écriture atomique, utilisée par plusieurs chemins.
 
 ### `scripts/search-knowledge.js`
 
@@ -247,9 +282,11 @@ Dernier test connu :
 - modèles détectés : `llama3.2:3b` et `qwen2.5:7b`
 - réponse reçue : `OK`
 
-## Workflow validé : source web vers fiche locale
+## Ancien workflow validé, conservé comme référence
 
-Le workflow complet de recherche contrôlée a été testé avec succès avec le sujet ComfyUI beginner guide.
+Ce workflow historique a été testé avec succès avec le sujet ComfyUI beginner
+guide. Il est désormais classé dans `scripts/legacy/` et n'est plus le chemin
+recommandé.
 
 ```txt
 mot-clé
@@ -337,19 +374,15 @@ Créer une fiche détaillée spécialisée, par exemple :
 knowledge/ai-image/comfyui-text-to-image-workflow.md
 ```
 
-### Option 2 - Titres plus propres
-
-Améliorer `scripts/generate-note-with-ollama.js` pour générer automatiquement des titres plus propres.
-
-### Option 3 - Plusieurs fiches spécialisées
+### Option 2 - Plusieurs fiches spécialisées
 
 Créer un script qui transforme plusieurs analyses présentes dans `notes.md` en plusieurs fiches spécialisées.
 
-### Option 4 - Workflow guidé
+### Option 3 - Workflow guidé
 
 Créer une commande qui lance le workflow étape par étape avec une confirmation humaine entre chaque étape.
 
-### Option 5 - Recherche locale améliorée
+### Option 4 - Recherche locale améliorée
 
 Améliorer `scripts/search-knowledge.js` avec un affichage plus compact ou l'ouverture du fichier trouvé.
 

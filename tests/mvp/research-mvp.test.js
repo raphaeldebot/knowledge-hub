@@ -8,13 +8,13 @@ const {
   generateWriteAndIndex,
   validateDestination,
   validateGeneratedMarkdown,
-} = require("./lib/research-mvp");
+} = require("../../scripts/mvp/research-mvp");
 const {
   cleanModelResponse,
   generateNoteDirect,
-} = require("./generate-note-direct-with-ollama");
+} = require("../../scripts/mvp/generate-note-direct-with-ollama");
 
-const PROJECT_ROOT = path.resolve(__dirname, "..");
+const PROJECT_ROOT = path.resolve(__dirname, "../..");
 const TEST_ROOT = path.join(
   PROJECT_ROOT,
   "tests",

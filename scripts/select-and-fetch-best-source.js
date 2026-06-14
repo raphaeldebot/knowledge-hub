@@ -1,7 +1,7 @@
 const fs = require("node:fs");
 const path = require("node:path");
 const childProcess = require("node:child_process");
-const { atomicWriteFile } = require("./lib/atomic-file");
+const { atomicWriteFile } = require("./shared/atomic-file");
 
 const PROJECT_ROOT = path.resolve(__dirname, "..");
 const RESEARCH_ROOT = path.join(PROJECT_ROOT, "data", "raw", "research");

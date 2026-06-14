@@ -6,9 +6,9 @@ const {
   canonicalizeMarkdown,
   cleanSourceText,
   validateGeneratedMarkdown,
-} = require("./lib/research-mvp");
+} = require("./research-mvp");
 
-const PROJECT_ROOT = path.resolve(__dirname, "..");
+const PROJECT_ROOT = path.resolve(__dirname, "../..");
 const OLLAMA_URL = "http://localhost:11434";
 const DEFAULT_MODEL = "qwen2.5:7b";
 const REQUEST_TIMEOUT_MS = 180_000;
@@ -330,7 +330,7 @@ async function main() {
 
   if (!inputPath) {
     throw new Error(
-      "Usage : node scripts/generate-note-direct-with-ollama.js <input.json>"
+      "Usage : node scripts/mvp/generate-note-direct-with-ollama.js <input.json>"
     );
   }
 

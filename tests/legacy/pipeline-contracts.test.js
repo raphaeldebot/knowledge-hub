@@ -4,37 +4,37 @@ const os = require("node:os");
 const path = require("node:path");
 const test = require("node:test");
 
-const { atomicWriteFile } = require("./lib/atomic-file");
+const { atomicWriteFile } = require("../../scripts/shared/atomic-file");
 const {
   parseJsonResponse,
   validateEvidence,
   validateFactsDocument,
-} = require("./lib/facts-contract");
+} = require("../../scripts/legacy/facts-contract");
 const {
   renderFactsMarkdown,
   shouldAllowCodeBlocks,
   validateMarkdownAgainstFacts,
-} = require("./lib/markdown-from-facts");
+} = require("../../scripts/legacy/markdown-from-facts");
 const {
   buildSourceLines,
   extractFactsWithRepair,
-} = require("./extract-facts-with-ollama");
+} = require("../../scripts/legacy/extract-facts-with-ollama");
 const {
   assessContent,
   detectContentProfile,
   getLevel,
-} = require("./check-source-adequacy");
+} = require("../../scripts/check-source-adequacy");
 const {
   selectWithAdequacy,
-} = require("./select-and-fetch-best-source");
+} = require("../../scripts/select-and-fetch-best-source");
 const {
   generateValidatedMarkdown,
-} = require("./generate-note-from-facts");
+} = require("../../scripts/legacy/generate-note-from-facts");
 const {
   executePipelineSteps,
-} = require("./run-research-pipeline");
+} = require("../../scripts/legacy/run-research-pipeline");
 
-const FIXTURES = path.join(__dirname, "..", "tests", "fixtures", "pipeline");
+const FIXTURES = path.join(__dirname, "..", "fixtures", "pipeline");
 
 function readFixture(name) {
   return fs.readFileSync(path.join(FIXTURES, name), "utf8");
@@ -200,10 +200,13 @@ test("10. Source historique sans contenu réel rejetée", () => {
   assert.notEqual(getLevel(assessment.score), "adequate");
 });
 
-test("11. Candidate partial suivie d'une candidate adequate", () => {
+test("11. Candidate partial suivie d'une candidate adequate", (context) => {
   const temporaryDirectory = fs.mkdtempSync(
     path.join(os.tmpdir(), "knowledge-hub-selection-")
   );
+  context.after(() => {
+    fs.rmSync(temporaryDirectory, { recursive: true, force: true });
+  });
   const candidates = [
     createCandidate("Partielle", "https://example.test/partial"),
     createCandidate("Adéquate", "https://example.test/adequate"),
@@ -239,10 +242,13 @@ test("11. Candidate partial suivie d'une candidate adequate", () => {
   assert.equal(selection.selectedAttempt.adequacyLevel, "adequate");
 });
 
-test("12. Aucune candidate adequate produit une erreur finale", () => {
+test("12. Aucune candidate adequate produit une erreur finale", (context) => {
   const temporaryDirectory = fs.mkdtempSync(
     path.join(os.tmpdir(), "knowledge-hub-no-selection-")
   );
+  context.after(() => {
+    fs.rmSync(temporaryDirectory, { recursive: true, force: true });
+  });
 
   assert.throws(
     () =>
@@ -438,10 +444,13 @@ test("25. Succès complet : indexation exactement une fois et code 0", () => {
   assert.equal(indexCount, 1);
 });
 
-test("26. Fichier existant préservé après une sortie invalide", () => {
+test("26. Fichier existant préservé après une sortie invalide", (context) => {
   const temporaryDirectory = fs.mkdtempSync(
     path.join(os.tmpdir(), "knowledge-hub-preserve-")
   );
+  context.after(() => {
+    fs.rmSync(temporaryDirectory, { recursive: true, force: true });
+  });
   const outputPath = path.join(temporaryDirectory, "existing.md");
   fs.writeFileSync(outputPath, "contenu valide", "utf8");
   const invalidDocument = readJsonFixture("recipe-facts.json");
@@ -454,10 +463,13 @@ test("26. Fichier existant préservé après une sortie invalide", () => {
   assert.equal(fs.readFileSync(outputPath, "utf8"), "contenu valide");
 });
 
-test("27. Aucun fichier temporaire abandonné après erreur", () => {
+test("27. Aucun fichier temporaire abandonné après erreur", (context) => {
   const temporaryDirectory = fs.mkdtempSync(
     path.join(os.tmpdir(), "knowledge-hub-atomic-")
   );
+  context.after(() => {
+    fs.rmSync(temporaryDirectory, { recursive: true, force: true });
+  });
   const outputPath = path.join(temporaryDirectory, "existing.md");
   fs.writeFileSync(outputPath, "contenu valide", "utf8");
 

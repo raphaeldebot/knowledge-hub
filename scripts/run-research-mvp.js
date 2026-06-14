@@ -1,7 +1,9 @@
 const fs = require("node:fs");
 const path = require("node:path");
 const { spawnSync } = require("node:child_process");
-const { generateNoteDirect } = require("./generate-note-direct-with-ollama");
+const {
+  generateNoteDirect,
+} = require("./mvp/generate-note-direct-with-ollama");
 const {
   ALLOWED_TOPICS,
   cleanSourceText,
@@ -9,7 +11,7 @@ const {
   extractFetchedSource,
   finalizeGeneratedNote,
   findFetchedFileForUrl,
-} = require("./lib/research-mvp");
+} = require("./mvp/research-mvp");
 
 const PROJECT_ROOT = path.resolve(__dirname, "..");
 const KNOWLEDGE_ROOT = path.join(PROJECT_ROOT, "knowledge");

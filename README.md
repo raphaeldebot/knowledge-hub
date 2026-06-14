@@ -153,31 +153,33 @@ updated: ""
 - utiliser un provider gratuit ou local
 - garder les sources et le niveau de confiance
 
-## MVP de recherche directe
+## Chemin recommandé : MVP de recherche directe
 
 Le chemin MVP simplifié exécute :
 
 ```txt
 requête
-→ recherche et sélection d'une source
-→ récupération ou réutilisation locale
-→ nettoyage léger
-→ un appel principal à Ollama
+→ recherche
+→ sélection et récupération
+→ nettoyage simple
+→ génération Markdown directe
 → validation minimale
-→ écriture atomique dans knowledge/
+→ écriture atomique
 → indexation
 ```
 
 Commande :
 
 ```powershell
-node scripts/run-research-mvp.js "recette gâteau au chocolat moelleux"
+$env:OLLAMA_MODEL = "qwen3:14b"
+node scripts/run-research-mvp.js "recette gâteau au chocolat moelleux" --force
 ```
 
-Le modèle par défaut est `qwen2.5:7b`. Il reste configurable :
+Le modèle testé avec succès est `qwen3:14b`. Le modèle reste configurable avec
+la variable `OLLAMA_MODEL` :
 
 ```powershell
-$env:OLLAMA_MODEL = "qwen2.5:7b"
+$env:OLLAMA_MODEL = "qwen3:14b"
 ```
 
 Le topic est classé automatiquement. L'option `--topic` permet de le fixer
@@ -192,6 +194,22 @@ Limites connues :
 - une seule réparation Ollama est permise si la première sortie est inutilisable ;
 - la validation vérifie les éléments essentiels, pas chaque phrase ;
 - une relecture humaine reste obligatoire.
+
+Le code spécifique au MVP se trouve dans `scripts/mvp/`. Le point d'entrée
+public reste `scripts/run-research-mvp.js`.
+
+## Ancien pipeline
+
+L'ancien pipeline complexe est conservé dans `scripts/legacy/` à titre de
+référence. Il repose sur une extraction JSON structurée, des faits avec
+provenance et un rendu Markdown par profil.
+
+Ce pipeline est expérimental et n'est pas le chemin recommandé actuellement.
+Les anciens fichiers encore présents à la racine de `scripts/` sont des
+wrappers de compatibilité.
+
+L'utilitaire d'écriture atomique partagé par plusieurs chemins se trouve dans
+`scripts/shared/`.
 
 ### Étape 4 - Interface
 

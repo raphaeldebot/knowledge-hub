@@ -1,6 +1,6 @@
 const fs = require("node:fs");
 const path = require("node:path");
-const { atomicWriteFile } = require("./atomic-file");
+const { atomicWriteFile } = require("../shared/atomic-file");
 
 const ALLOWED_TOPICS = new Set([
   "ai-image",
