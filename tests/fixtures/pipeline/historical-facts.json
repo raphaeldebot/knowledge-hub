@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "query": "Révolution française",
+  "topic": "histoire",
+  "profile": "historical",
+  "sources": [
+    {
+      "id": "source-1",
+      "url": "https://example.test/revolution-francaise",
+      "title": "Révolution française",
+      "localFile": "tests/fixtures/pipeline/historical-complete.md",
+      "adequacy": "adequate"
+    }
+  ],
+  "facts": [
+    {
+      "id": "fact-1",
+      "type": "text",
+      "content": "La Révolution française commence en 1789 dans un contexte de crise financière, d'inégalités fiscales et de contestation politique.",
+      "sourceId": "source-1",
+      "evidence": "La Révolution française est une période de transformation politique et sociale qui commence en 1789 dans le royaume de France.",
+      "confidence": "high"
+    },
+    {
+      "id": "fact-2",
+      "type": "date",
+      "content": "Le 14 juillet 1789, la prise de la Bastille devient un événement majeur à Paris.",
+      "sourceId": "source-1",
+      "evidence": "Le 14 juillet 1789, la prise de la Bastille devient un événement majeur à Paris.",
+      "confidence": "high"
+    },
+    {
+      "id": "fact-3",
+      "type": "date",
+      "content": "La Première République est proclamée en 1792.",
+      "sourceId": "source-1",
+      "evidence": "la Première République en 1792",
+      "confidence": "high"
+    },
+    {
+      "id": "fact-4",
+      "type": "step",
+      "content": "Louis XVI convoque les États généraux à Versailles.",
+      "sourceId": "source-1",
+      "evidence": "Louis XVI convoque les États généraux à Versailles.",
+      "confidence": "high"
+    }
+  ],
+  "missingInformation": [],
+  "warnings": [
+    "Les interprétations historiques divergent sur les causes précises."
+  ]
+}

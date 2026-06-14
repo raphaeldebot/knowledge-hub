@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 1,
+  "query": "recette gâteau au chocolat",
+  "topic": "cuisine",
+  "profile": "recipe",
+  "sources": [
+    {
+      "id": "source-1",
+      "url": "https://example.test/recette",
+      "title": "Recette de gâteau au chocolat",
+      "localFile": "tests/fixtures/pipeline/recipe-complete.md",
+      "adequacy": "adequate"
+    }
+  ],
+  "facts": [
+    {
+      "id": "fact-1",
+      "type": "ingredient",
+      "content": "200 g de chocolat noir",
+      "sourceId": "source-1",
+      "evidence": "200 g de chocolat noir",
+      "confidence": "high"
+    },
+    {
+      "id": "fact-2",
+      "type": "ingredient",
+      "content": "100 g de beurre",
+      "sourceId": "source-1",
+      "evidence": "100 g de beurre",
+      "confidence": "high"
+    },
+    {
+      "id": "fact-3",
+      "type": "step",
+      "content": "Faire fondre le chocolat noir avec le beurre.",
+      "sourceId": "source-1",
+      "evidence": "Faire fondre le chocolat noir avec le beurre.",
+      "confidence": "high"
+    },
+    {
+      "id": "fact-4",
+      "type": "step",
+      "content": "Mélanger les oeufs avec le sucre.",
+      "sourceId": "source-1",
+      "evidence": "Mélanger les oeufs avec le sucre.",
+      "confidence": "high"
+    },
+    {
+      "id": "fact-5",
+      "type": "quantity",
+      "content": "Cuire pendant 25 minutes à 180 °C.",
+      "sourceId": "source-1",
+      "evidence": "Cuire pendant 25 minutes à 180 °C.",
+      "confidence": "high"
+    },
+    {
+      "id": "fact-6",
+      "type": "quantity",
+      "content": "La recette donne 6 portions.",
+      "sourceId": "source-1",
+      "evidence": "La recette donne 6 portions.",
+      "confidence": "high"
+    }
+  ],
+  "missingInformation": [],
+  "warnings": []
+}

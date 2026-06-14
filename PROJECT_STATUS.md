@@ -72,8 +72,10 @@ scripts/
   analyze-fetched-source-with-ollama.js
   create-research-topic.js
   fetch-source.js
+  generate-note-direct-with-ollama.js
   generate-note-with-ollama.js
   index-knowledge.js
+  run-research-mvp.js
   search-knowledge.js
   search-web-sources.js
   test-ollama.js
@@ -200,6 +202,24 @@ Commande :
 ```bash
 node scripts/index-knowledge.js
 ```
+
+### `scripts/run-research-mvp.js`
+
+Orchestrateur minimal parallèle au pipeline JSON complexe. Il réutilise la
+recherche, la validation, la sélection et la récupération existantes, nettoie
+légèrement la source, demande directement une fiche Markdown à Ollama, valide
+les champs indispensables, écrit atomiquement la fiche puis lance l'indexation
+une seule fois.
+
+Commande :
+
+```powershell
+node scripts/run-research-mvp.js "recette gâteau au chocolat moelleux"
+```
+
+Le modèle par défaut est `qwen2.5:7b` et peut être changé avec
+`OLLAMA_MODEL`. Le topic est automatique, avec une option manuelle `--topic`.
+La fiche produite reste en statut `draft`.
 
 ### `scripts/search-knowledge.js`
 

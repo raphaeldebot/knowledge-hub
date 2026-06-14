@@ -153,6 +153,46 @@ updated: ""
 - utiliser un provider gratuit ou local
 - garder les sources et le niveau de confiance
 
+## MVP de recherche directe
+
+Le chemin MVP simplifié exécute :
+
+```txt
+requête
+→ recherche et sélection d'une source
+→ récupération ou réutilisation locale
+→ nettoyage léger
+→ un appel principal à Ollama
+→ validation minimale
+→ écriture atomique dans knowledge/
+→ indexation
+```
+
+Commande :
+
+```powershell
+node scripts/run-research-mvp.js "recette gâteau au chocolat moelleux"
+```
+
+Le modèle par défaut est `qwen2.5:7b`. Il reste configurable :
+
+```powershell
+$env:OLLAMA_MODEL = "qwen2.5:7b"
+```
+
+Le topic est classé automatiquement. L'option `--topic` permet de le fixer
+manuellement si nécessaire. Les fiches sont écrites dans
+`knowledge/<topic>/<slug>.md`, restent en statut `draft`, puis sont ajoutées à
+`data/processed/knowledge-index.json`.
+
+Limites connues :
+
+- une seule source est utilisée ;
+- le nettoyage est volontairement simple ;
+- une seule réparation Ollama est permise si la première sortie est inutilisable ;
+- la validation vérifie les éléments essentiels, pas chaque phrase ;
+- une relecture humaine reste obligatoire.
+
 ### Étape 4 - Interface
 
 - créer une interface de recherche

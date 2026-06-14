@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 1,
+  "query": "Git rebase pour débutants",
+  "topic": "git",
+  "profile": "technical",
+  "sources": [
+    {
+      "id": "source-1",
+      "url": "https://git-scm.com/docs/git-rebase",
+      "title": "git-rebase Documentation",
+      "localFile": "tests/fixtures/pipeline/technical-git.md",
+      "adequacy": "adequate"
+    }
+  ],
+  "facts": [
+    {
+      "id": "fact-1",
+      "type": "definition",
+      "content": "Git rebase permet de réappliquer les commits d'une branche sur une nouvelle base.",
+      "sourceId": "source-1",
+      "evidence": "Git rebase permet de réappliquer les commits d'une branche sur une nouvelle base.",
+      "confidence": "high"
+    },
+    {
+      "id": "fact-2",
+      "type": "command",
+      "content": "git rebase main",
+      "sourceId": "source-1",
+      "evidence": "git rebase main",
+      "confidence": "high"
+    },
+    {
+      "id": "fact-3",
+      "type": "command",
+      "content": "git rebase --continue",
+      "sourceId": "source-1",
+      "evidence": "git rebase --continue",
+      "confidence": "high"
+    },
+    {
+      "id": "fact-4",
+      "type": "command",
+      "content": "git rebase --abort",
+      "sourceId": "source-1",
+      "evidence": "git rebase --abort",
+      "confidence": "high"
+    },
+    {
+      "id": "fact-5",
+      "type": "warning",
+      "content": "Il faut éviter de réécrire une branche publique déjà partagée sans coordination.",
+      "sourceId": "source-1",
+      "evidence": "Il faut donc éviter de réécrire une branche publique déjà partagée sans coordination.",
+      "confidence": "high"
+    }
+  ],
+  "missingInformation": [],
+  "warnings": []
+}
