@@ -10,7 +10,6 @@ const {
   validateGeneratedMarkdown,
 } = require("../../scripts/mvp/research-mvp");
 const {
-  cleanModelResponse,
   generateNoteDirect,
 } = require("../../scripts/mvp/generate-note-direct-with-ollama");
 
@@ -91,26 +90,42 @@ test("3. source absente rejetée", () => {
   assert.match(result.errors.join(" "), /source/i);
 });
 
-test("4. fiche valide acceptée", () => {
-  const wrapped = `<think>raisonnement local</think>
+test("4. corps Ollama accepté et métadonnées ajoutées localement", async () => {
+  let modelCalls = 0;
+  const body = `## Résumé
 
-Voici la fiche :
+Ce guide chocolat pratique présente une procédure locale et fidèle à la source.
 
-\`\`\`
----
-séparation décorative
----
-\`\`\`
+## Procédure
 
-\`\`\`markdown
-${validMarkdown()}
-\`\`\``;
-  const result = validateGeneratedMarkdown(
-    cleanModelResponse(wrapped),
-    CONTEXT
+- Utiliser du chocolat selon les indications disponibles.
+- Suivre les étapes décrites dans la source.
+- Vérifier le résultat avant de considérer la fiche comme relue.`;
+  const markdown = await generateNoteDirect(
+    {
+      query: CONTEXT.query,
+      sourceTitle: "Guide chocolat pratique",
+      sourceUrl: SOURCE_URL,
+      sourcePath: "data/raw/source.md",
+      cleanedSource: CONTEXT.cleanedSource,
+      requestedTopic: "cuisine",
+      updated: CONTEXT.updated,
+    },
+    {
+      model: "mock",
+      callModel: async () => {
+        modelCalls += 1;
+        return body;
+      },
+    }
   );
+  const result = validateGeneratedMarkdown(markdown, CONTEXT);
 
   assert.equal(result.valid, true, result.errors.join(" | "));
+  assert.match(markdown, /^---$/m);
+  assert.match(markdown, /^topic: "cuisine"$/m);
+  assert.match(markdown, new RegExp(SOURCE_URL.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+  assert.equal(modelCalls, 1);
 });
 
 test("5. destination hors knowledge rejetée", () => {
@@ -203,7 +218,7 @@ test("10. échec de génération ne lançant pas l’indexation", async () => {
   assert.equal(indexCalls, 0);
 });
 
-test("réparation déterministe des métadonnées sans second appel", async () => {
+test("frontmatter Ollama ignoré et reconstruit localement sans second appel", async () => {
   let modelCalls = 0;
   const incomplete = validMarkdown("Métadonnées réparées")
     .replace('topic: "cuisine"', "topic:")

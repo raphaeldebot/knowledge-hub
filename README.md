@@ -158,25 +158,35 @@ updated: ""
 Le chemin MVP simplifié exécute :
 
 ```txt
-requête
-→ recherche
-→ sélection et récupération
+requête utilisateur
+→ recherche et sélection
+→ récupération ou réutilisation d'une source
 → nettoyage simple
-→ génération Markdown directe
-→ validation minimale
-→ écriture atomique
+→ Ollama génère uniquement le corps Markdown
+→ JavaScript construit le titre, le frontmatter, le topic, les tags et la source
+→ validation légère
+→ écriture atomique dans knowledge/<topic>/
 → indexation
 ```
 
-Commande :
+Commande PowerShell :
 
 ```powershell
 $env:OLLAMA_MODEL = "qwen3:14b"
-node scripts/run-research-mvp.js "recette gâteau au chocolat moelleux" --force
+node scripts/run-research-mvp.js "ma recherche" --force
+```
+
+Commande Git Bash :
+
+```bash
+OLLAMA_MODEL=qwen3:14b node scripts/run-research-mvp.js \
+  "ma recherche" \
+  --force
 ```
 
 Le modèle testé avec succès est `qwen3:14b`. Le modèle reste configurable avec
-la variable `OLLAMA_MODEL` :
+la variable `OLLAMA_MODEL`. Le modèle par défaut du code est actuellement
+`qwen2.5:7b` :
 
 ```powershell
 $env:OLLAMA_MODEL = "qwen3:14b"
@@ -211,12 +221,18 @@ wrappers de compatibilité.
 L'utilitaire d'écriture atomique partagé par plusieurs chemins se trouve dans
 `scripts/shared/`.
 
-### Étape 4 - Interface
+## Prochaine phase : interface web
 
-- créer une interface de recherche
-- filtrer par thème, tag, niveau et statut
-- afficher les fiches
-- préparer un dashboard de progression
+Le pipeline reste indépendant de la future interface. La prochaine phase
+consiste à créer une interface web locale en lecture seule qui utilisera :
+
+```txt
+data/processed/knowledge-index.json
+knowledge/**/*.md
+```
+
+Elle devra permettre de parcourir, rechercher, filtrer et lire les fiches sans
+modifier le pipeline de génération.
 
 ### Étape 5 - Planner
 

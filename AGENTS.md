@@ -18,7 +18,11 @@ Le projet devra permettre de :
 
 ## Règle principale
 
-Avant chaque action importante, lis ce fichier `AGENTS.md`.
+Avant chaque changement important, lis :
+
+- `AGENTS.md`
+- `README.md`
+- `PROJECT_STATUS.md`
 
 Tu dois respecter ces règles pendant tout le projet.
 
@@ -31,6 +35,19 @@ Tu dois respecter ces règles pendant tout le projet.
 - Préférer du code lisible et facile à comprendre.
 - Expliquer les changements importants.
 - Ne pas faire plusieurs grosses étapes en une seule fois.
+- Préserver les fichiers et changements existants qui ne concernent pas la tâche.
+- Vérifier chaque changement avec des tests locaux adaptés.
+- Ne jamais transformer une erreur ou un résultat incomplet en faux succès.
+
+## Git
+
+Ne jamais exécuter sans demande explicite de l'utilisateur :
+
+- `git add`
+- `git commit`
+- `git push`
+
+L'utilisateur reste responsable du staging et des commits.
 
 ## Politique de coût
 
@@ -189,6 +206,20 @@ La V1 doit seulement permettre de :
 - créer un index simple
 - générer des fiches Markdown brouillon
 - garder des logs
+
+## Chemin recommandé
+
+Le point d'entrée recommandé est :
+
+`scripts/run-research-mvp.js`
+
+Le code de `scripts/legacy/` est conservé comme référence expérimentale. Il
+n'est pas le chemin recommandé et ne doit pas être relancé ou modifié sans
+besoin explicite.
+
+Les fiches produites par le MVP restent des brouillons. Une fiche `draft` peut
+être imparfaite sur le plan éditorial tant qu'elle reste utile, fidèle à sa
+source et clairement présentée comme nécessitant une validation humaine.
 
 ## Interdictions V1
 
