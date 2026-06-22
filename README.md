@@ -239,3 +239,15 @@ modifier le pipeline de génération.
 - ajouter des tâches
 - lier les tâches aux fiches
 - suivre l'avancement des idées et projets
+
+## Interface web locale
+
+L'interface Next.js se trouve dans `web/`. Pour la lancer :
+
+```powershell
+cd web
+npm install
+npm run dev
+```
+
+Consulter `web/README.md` pour l'édition, la génération locale avec Ollama et les précautions d'utilisation.

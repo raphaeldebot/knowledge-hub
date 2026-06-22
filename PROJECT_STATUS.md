@@ -5,8 +5,9 @@ Dernière mise à jour : 2026-06-14
 ## Résumé
 
 Knowledge Hub est une base de connaissances personnelle locale, gratuite et
-source-grounded. Le MVP de recherche est fonctionnel et la prochaine phase du
-projet est une interface web locale en lecture seule.
+source-grounded. Le MVP de recherche est fonctionnel et une interface web
+locale permet maintenant de consulter, rechercher, filtrer, éditer et générer
+des fiches.
 
 Les règles durables sont définies dans `AGENTS.md`.
 
@@ -136,9 +137,22 @@ expérimentale. Il n'est pas le chemin recommandé actuellement.
 
 ## Prochaine étape
 
-Créer une interface web locale en lecture seule permettant de parcourir,
-rechercher, filtrer et lire les fiches depuis `knowledge-index.json` et
-`knowledge/**/*.md`.
+Valider l'usage quotidien de l'interface dans `web/`, notamment une génération
+Ollama réelle et une édition manuelle choisie par l'utilisateur.
 
-L'interface devra rester séparée du pipeline de génération et ne devra pas
-modifier les sources originales.
+L'interface reste séparée du pipeline, ne modifie pas les sources originales et
+utilise des écritures atomiques avant réindexation.
+
+## Interface web locale
+
+- Next.js 16, App Router, TypeScript et Tailwind CSS dans `web/`
+- lecture de l'index et des fiches Markdown
+- recherche sans accents et filtres combinables
+- pages topics et rendu Markdown GFM
+- éditeur Markdown avec aperçu et métadonnées
+- déplacement sécurisé lors d'un changement de topic ou de slug
+- réindexation automatique ou manuelle
+- lancement sécurisé du MVP avec suivi de job en mémoire
+- une seule génération active
+- 20 tests déterministes sur fixtures temporaires
+- lint et build de production validés le 2026-06-14
